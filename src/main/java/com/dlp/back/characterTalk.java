@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DlpBackApplication {
+public class characterTalk {
 
     public static void main(String[] args) {
-        SpringApplication.run(DlpBackApplication.class, args);
+        SpringApplication.run(characterTalk.class, args);
     }
 
 }
