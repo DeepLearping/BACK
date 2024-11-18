@@ -1,25 +1,22 @@
 package com.dlp.back.auth.filter;
 
 import com.dlp.back.auth.handler.JwtTokenProvider;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.SignatureException;
+import com.dlp.back.auth.service.CustomUserDetails;
+import com.dlp.back.member.domain.entity.Member;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -59,9 +56,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         String token = jwtTokenProvider.resolveToken(request); // 요청에서 JWT 토큰 추출
         log.info("추출한 토큰: {}", token);
 
+        // 토큰 유효성 검사
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            String email = jwtTokenProvider.getUserEmailFromToken(token); // JWT에서 사용자 이름 추출
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email); // 사용자 세부 정보 로드
+            Claims claims = jwtTokenProvider.getClaimsFromToken(token); // JWT에서 사용자 고유 넘버 추출
+
+            Member member = Member.builder()
+                    .memberNo(Long.parseLong(claims.get("member_no").toString()))
+                    .email(claims.getSubject())
+                    .name(claims.get("name").toString())
+                    .build();
+
+            // 토큰에 담겨있던 정보로 인증 객체를 만든다.
+            CustomUserDetails userDetails = new CustomUserDetails();
+            userDetails.setMember(member);
 
             // Authentication 객체 생성 및 SecurityContext에 설정
             UsernamePasswordAuthenticationToken authentication =
