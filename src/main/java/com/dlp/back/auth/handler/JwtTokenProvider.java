@@ -60,10 +60,10 @@ public class JwtTokenProvider {
         }
     }
 
-    // JWT에서 사용자 이메일 추출
-    public String getUserEmailFromToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        return claims.getSubject(); // 사용자 이메일 반환
+    // JWT에서 토큰 정보 추출
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody(); // 사용자 이메일 반환
+//        return claims.get("member_no", String.class); // 사용자 이메일 반환
     }
 
 }
