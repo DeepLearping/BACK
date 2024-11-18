@@ -115,6 +115,7 @@ public class AuthController {
                 user.setName(name);
                 user.setEmail(email);
                 user.setPicture(picture);
+                user.setRole("human");
                 memberRepository.save(user); // 데이터베이스에 저장
             }
             log.info("user 정보 : {}", user);

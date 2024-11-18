@@ -8,6 +8,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰을 생성하고 검증하는 클래스
@@ -55,6 +57,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         // 헤더에서 토큰 꺼내기
         String token = jwtTokenProvider.resolveToken(request); // 요청에서 JWT 토큰 추출
+        log.info("추출한 토큰: {}", token);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getUserEmailFromToken(token); // JWT에서 사용자 이름 추출
