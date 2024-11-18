@@ -16,9 +16,12 @@ public class Member {
     private Long memberNo;
 
     private String googleId;
+    private String kakaoId;
     private String name;
+    private String nickname;
     private String email;
     private String picture;
+    private String role;
 
 }
 
