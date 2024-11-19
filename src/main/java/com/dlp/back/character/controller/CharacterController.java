@@ -66,5 +66,5 @@ public class CharacterController {
                 .body(new ResponseMessage(HttpStatus.OK, charNo+"번 캐릭터의 정보를 불러옵니다...", responseMap));
     }
 
-    
+
 }
