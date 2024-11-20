@@ -15,7 +15,6 @@ public class Character {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long charNo;
-
     private String description;
     private String charName;
     private String profileImage;
