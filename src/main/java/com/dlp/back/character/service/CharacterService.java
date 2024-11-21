@@ -42,7 +42,8 @@ public class CharacterService {
 
     public Resource loadCharacterImage(String imageName) throws Exception {
         // 이미지 파일의 경로 설정
-        Path imagePath = Paths.get("C:\\Users\\20107\\Desktop\\BACK-main\\src\\main\\resources\\static\\image\\characterProfile").resolve(imageName);
+        Path basePath = Paths.get("src/main/resources/static/image/characterProfile");
+        Path imagePath = basePath.resolve(imageName);
         log.info(imagePath.toString());
         // 파일 이름은 캐릭터 번호에 따라 다를 수 있음
         Resource image = new UrlResource(imagePath.toUri());
