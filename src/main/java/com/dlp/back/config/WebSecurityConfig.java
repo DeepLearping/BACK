@@ -40,8 +40,8 @@ public class WebSecurityConfig {
                 // CORS 설정
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
+                    auth.requestMatchers("/", "/login/**","/auth/google/callback","/auth/kakao/callback","/images/**","/swagger-ui/**","/api-docs/**","/api*","/v3/api-docs/**", "/swagger-resources/**","/auth/send-code","/auth/verify-code","/api/v1/chatRoom/**","/api/v1/character/**").permitAll();
                     auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
-                    auth.requestMatchers("/", "/login/**","/auth/google/callback","/auth/kakao/callback","/images/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2Login(withDefaults())

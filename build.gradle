@@ -43,7 +43,11 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework.boot:spring-boot-starter-mail:3.0.5'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0'
 
     // JWT (토큰) 라이브러리
@@ -71,6 +75,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // modelmapper (엔티티와 DTO 매핑해주는거)
+    implementation 'org.modelmapper:modelmapper:2.4.4'
 }
 
 tasks.named('test') {

@@ -5,9 +5,13 @@ import com.dlp.back.character.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import com.dlp.back.character.domain.entity.Character;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +37,22 @@ public class CharacterService {
         Character foundCharacter = characterRepository.findById(charNo).get();
 
         return foundCharacter;
+    }
+
+
+    public Resource loadCharacterImage(String imageName) throws Exception {
+        // 이미지 파일의 경로 설정
+        Path imagePath = Paths.get("C:\\Users\\20107\\Desktop\\BACK-main\\src\\main\\resources\\static\\image\\characterProfile").resolve(imageName);
+        log.info(imagePath.toString());
+        // 파일 이름은 캐릭터 번호에 따라 다를 수 있음
+        Resource image = new UrlResource(imagePath.toUri());
+
+        // 이미지가 존재하는지 확인
+        if (image.exists() || image.isReadable()) {
+            return image;
+        } else {
+            throw new Exception("Image not found");
+        }
     }
 
 }
