@@ -33,8 +33,5 @@ public class ChatMessage {
     @JoinColumn(name = "participant_no")
     private Participant participantNo;
 
-
-
-
 }
 

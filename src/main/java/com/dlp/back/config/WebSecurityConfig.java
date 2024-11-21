@@ -3,6 +3,7 @@ package com.dlp.back.config;
 import com.dlp.back.auth.filter.JwtAuthorizationFilter;
 import com.dlp.back.auth.handler.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,14 +33,15 @@ public class WebSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/auth/google/callback"))
+                .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // CORS 설정
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/", "/login/**","/auth/google/callback").permitAll();
+                    auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
+                    auth.requestMatchers("/", "/login/**","/auth/google/callback","/auth/kakao/callback","/images/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2Login(withDefaults())
