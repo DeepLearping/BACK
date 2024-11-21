@@ -3,6 +3,7 @@ package com.dlp.back.config;
 import com.dlp.back.auth.filter.JwtAuthorizationFilter;
 import com.dlp.back.auth.handler.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,7 +40,8 @@ public class WebSecurityConfig {
                 // CORS 설정
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/", "/login/**","/auth/google/callback","/swagger-ui/**","/api-docs/**","/api*","/v3/api-docs/**", "/swagger-resources/**","/auth/send-code","/auth/verify-code","/api/v1/chatRoom/**","/api/v1/character/**").permitAll();
+                    auth.requestMatchers("/", "/login/**","/auth/google/callback","/auth/kakao/callback","/images/**","/swagger-ui/**","/api-docs/**","/api*","/v3/api-docs/**", "/swagger-resources/**","/auth/send-code","/auth/verify-code","/api/v1/chatRoom/**","/api/v1/character/**").permitAll();
+                    auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .oauth2Login(withDefaults())
