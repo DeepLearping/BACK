@@ -71,7 +71,7 @@ dependencies {
     // Testing libraries
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    // OAuth2 (google, github 로그인)
+    // OAuth2 (google, 카카오 로그인)
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
