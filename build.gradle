@@ -1,0 +1,85 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.dlp'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    compileOnly 'org.projectlombok:lombok'
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-mail:3.0.5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0'
+
+    // JWT (토큰) 라이브러리
+    implementation "io.jsonwebtoken:jjwt:0.9.1"
+
+    // Spring 버전이 바뀌게 되면서 발생한 호환 문제를 해결하기 위해 추가한 라이브러리
+    implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+
+    // JSON 형식으로 응답할 수 있게 해주는 라이브러리
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+    // Spring Boot JDBC로 시작하기
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
+    // MySQL JDBC Driver
+    runtimeOnly 'mysql:mysql-connector-java:8.0.28'
+
+    // Spring Boot Starter for Yaml
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    // Testing libraries
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // OAuth2 (google, 카카오 로그인)
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // modelmapper (엔티티와 DTO 매핑해주는거)
+    implementation 'org.modelmapper:modelmapper:2.4.4'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
