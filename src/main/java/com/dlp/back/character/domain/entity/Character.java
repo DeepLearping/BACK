@@ -19,6 +19,7 @@ public class Character {
     private String charName;
     private String profileImage;
     private String role;
+    private int chatCount; // 캐릭터 선택 횟수 표시(이득규)
 
 }
 

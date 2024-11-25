@@ -5,14 +5,17 @@ import com.dlp.back.character.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import com.dlp.back.character.domain.entity.Character;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,9 @@ import java.util.stream.Collectors;
 public class CharacterService {
     private final ModelMapper modelMapper;
     private final CharacterRepository characterRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     public List<CharacterDTO> findAllCharacter() {
 
@@ -42,8 +48,7 @@ public class CharacterService {
 
     public Resource loadCharacterImage(String imageName) throws Exception {
         // 이미지 파일의 경로 설정
-        Path basePath = Paths.get("src/main/resources/static/image/characterProfile");
-        Path imagePath = basePath.resolve(imageName);
+        Path imagePath = Paths.get(uploadDir).resolve(imageName);
         log.info(imagePath.toString());
         // 파일 이름은 캐릭터 번호에 따라 다를 수 있음
         Resource image = new UrlResource(imagePath.toUri());
@@ -54,6 +59,19 @@ public class CharacterService {
         } else {
             throw new Exception("Image not found");
         }
+    }
+
+    // chatCount 증가 시키는 메서드(이득규)
+    @Transactional
+    public boolean incrementChatCount(Long charNo) {
+        Optional<Character> characterOpt = characterRepository.findById(charNo);
+        if (characterOpt.isPresent()) {
+            Character character = characterOpt.get();
+            character.setChatCount(character.getChatCount() +1);
+            characterRepository.save(character);
+            return true;
+        }
+        return false;
     }
 
 }
