@@ -3,7 +3,6 @@ package com.dlp.back.character.service;
 import com.dlp.back.character.domain.dto.CharacterDTO;
 import com.dlp.back.character.repository.CharacterRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.core.io.Resource;
@@ -20,12 +19,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class CharacterService {
-
     private final ModelMapper modelMapper;
     private final CharacterRepository characterRepository;
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
 
     public List<CharacterDTO> findAllCharacter() {
 
@@ -47,7 +42,8 @@ public class CharacterService {
 
     public Resource loadCharacterImage(String imageName) throws Exception {
         // 이미지 파일의 경로 설정
-        Path imagePath = Paths.get(uploadDir).resolve(imageName);
+        Path basePath = Paths.get("src/main/resources/static/image/characterProfile");
+        Path imagePath = basePath.resolve(imageName);
         log.info(imagePath.toString());
         // 파일 이름은 캐릭터 번호에 따라 다를 수 있음
         Resource image = new UrlResource(imagePath.toUri());
