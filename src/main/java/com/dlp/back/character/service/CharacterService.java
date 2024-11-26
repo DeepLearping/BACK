@@ -48,8 +48,8 @@ public class CharacterService {
 
     public Resource loadCharacterImage(String imageName) throws Exception {
         // 이미지 파일의 경로 설정
-        Path imagePath = Paths.get(uploadDir).resolve(imageName);
-        log.info(imagePath.toString());
+        Path basePath = Paths.get("src/main/resources/static/image/characterProfile");
+        Path imagePath = basePath.resolve(imageName);
         // 파일 이름은 캐릭터 번호에 따라 다를 수 있음
         Resource image = new UrlResource(imagePath.toUri());
 
