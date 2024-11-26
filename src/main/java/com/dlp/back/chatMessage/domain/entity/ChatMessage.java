@@ -22,9 +22,14 @@ import java.time.LocalDateTime;
 public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long messageNo;
+    private Long id;
 
-    private String content;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
+    private ChatRoom chatRoom;
+
+    @Column(columnDefinition = "TEXT")
+    private String message;
 
     @CreatedDate
     private LocalDateTime createdDate;
