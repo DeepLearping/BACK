@@ -2,6 +2,7 @@ package com.dlp.back.character.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "`character`")
@@ -19,6 +20,8 @@ public class Character {
     private String charName;
     private String profileImage;
     private String role;
+
+    @ColumnDefault("0")
     private int chatCount; // 캐릭터 선택 횟수 표시(이득규)
 
 }

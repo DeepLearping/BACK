@@ -1,10 +1,11 @@
 package com.dlp.back.chatRoom.domain.dto;
 
-import com.dlp.back.participant.domain.entity.Participant;
+import com.dlp.back.character.domain.entity.Character;
+import com.dlp.back.chatRoom.domain.entity.ChatRoom;
+import com.dlp.back.member.domain.entity.Member;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,11 +13,14 @@ import java.util.List;
 @Setter
 @Builder
 @ToString
-public class ChatRoomDTO {
+public class ChatRoomResponse {
+
     private Long sessionId;
     private String roomName;
     private String description;
-    private List<Participant> participant;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
+    private Member member;
+    private Character character;
+
 }

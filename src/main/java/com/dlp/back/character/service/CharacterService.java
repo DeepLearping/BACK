@@ -25,9 +25,6 @@ public class CharacterService {
     private final ModelMapper modelMapper;
     private final CharacterRepository characterRepository;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     public List<CharacterDTO> findAllCharacter() {
 
         List<Character> characters = characterRepository.findAll();
