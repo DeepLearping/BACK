@@ -37,6 +37,5 @@ public class ChatMessage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_no")
     private Participant participantNo;
-
 }
 
