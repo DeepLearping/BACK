@@ -1,9 +1,6 @@
 package com.dlp.back.chatRoom.controller;
 
-import com.dlp.back.chatRoom.domain.dto.ChatRoomDTO;
-import com.dlp.back.chatRoom.domain.dto.ChatRoomInfo;
-import com.dlp.back.chatRoom.domain.dto.CreateChatRoomDTO;
-import com.dlp.back.chatRoom.domain.dto.UpdateChatRoomDTO;
+import com.dlp.back.chatRoom.domain.dto.*;
 import com.dlp.back.chatRoom.domain.entity.ChatRoom;
 import com.dlp.back.chatRoom.service.ChatRoomService;
 import com.dlp.back.common.ResponseMessage;
@@ -12,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +27,7 @@ import java.util.Map;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final ModelMapper modelMapper;
 
     //챗팅 방 조회
     @Operation(summary = "챗팅방 조회")
@@ -103,14 +102,24 @@ public class ChatRoomController {
         ChatRoom chatRoom;
 
         if (isExist) {
-            chatRoom = chatRooms.iterator().next();
+            chatRoom = chatRooms.get(0);
         } else {
             // 존재하는 채팅방이 없으면 채팅방 생성해주기
             chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
         }
 
+        ChatRoomResponse chatRoomResponse = ChatRoomResponse.builder()
+                .sessionId(chatRoom.getSessionId())
+                .createdDate(chatRoom.getCreatedDate())
+                .lastModifiedDate(chatRoom.getLastModifiedDate())
+                .roomName(chatRoom.getRoomName())
+                .description(chatRoom.getDescription())
+                .character(chatRoom.getParticipant().get(1).getCharacter())
+                .member(chatRoom.getParticipant().get(0).getMember())
+                .build();
+
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("chatRoom", chatRoom);
+        responseMap.put("chatRoom", chatRoomResponse);
 
         return ResponseEntity
                 .created(URI.create("/chatRoom/"+chatRoom.getSessionId()))
