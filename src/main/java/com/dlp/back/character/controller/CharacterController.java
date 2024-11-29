@@ -32,17 +32,13 @@ public class CharacterController {
 
     @Operation(summary = "전체 캐릭터 조회")
     @GetMapping("")
-    public ResponseEntity<ResponseMessage> findAllHospital() {
-
+    public ResponseEntity<ResponseMessage> findAllCharacters() {
         List<CharacterDTO> allCharacters = characterService.findAllCharacter();
-
-        log.info("조회된 전체 캐릭터 정보 : {}", allCharacters);
+//        log.info("조회된 전체 캐릭터 정보 : {}", allCharacters);
 
         Map<String, Object> responseMap = new HashMap<>();
-
         responseMap.put("character", allCharacters);
-
-        log.info(responseMap.toString());
+//        log.info(responseMap.toString());
 
         return ResponseEntity.ok()
                 .body
@@ -84,7 +80,7 @@ public class CharacterController {
         }
     }
 
-    // 캐릭터 선택 시 chatCount 증가(이득규)
+    // 캐릭터 선택 시 chatCount 증가
     @PutMapping("/{charNo}/incrementChatCount")
     public ResponseEntity<String> incrementChatCount(@PathVariable Long charNo) {
         log.info("Chat count increment request received for charNo: {}", charNo);
