@@ -13,11 +13,6 @@ import java.util.Optional;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-//    @Modifying
-//    @Transactional
-//    @Query("UPDATE ChatMessage c SET c.participantNo = :participantNo WHERE c.id = :id")
-//    int updateParticipantNo(@Param("id") Long id, @Param("participantNo") Long participantNo);
-
     @Modifying
     @Transactional
     @Query("UPDATE ChatMessage c SET c.participantNo = :participant WHERE c.id = :id")
