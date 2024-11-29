@@ -34,6 +34,8 @@ public class ChatMessage {
     @CreatedDate
     private LocalDateTime createdDate;
 
+    private String msgImgUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_no")
     private Participant participantNo;
