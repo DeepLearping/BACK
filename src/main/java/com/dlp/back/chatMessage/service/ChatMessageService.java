@@ -63,7 +63,9 @@ public class ChatMessageService {
                 map.put("characterId", responseEntity.getBody().getCharacterId());
                 map.put("msgImg", responseEntity.getBody().getMsgImg());
 
-                // TODO: 감정 imageUrl 저장
+                if(responseEntity.getBody().getMsgImg() > 0){
+                    updateMsgImgUrl(responseEntity.getBody().getCharacterId(), responseEntity.getBody().getMsgImg(), chatRequest);
+                }
 
                 return map;
             } else {
@@ -91,6 +93,22 @@ public class ChatMessageService {
                 throw new RuntimeException("채팅방 id" + chatRequest.getConversationId() + "에 저장된 메세지가 없습니다.");
             }
         });
+    }
+
+    private void updateMsgImgUrl(long characterId, int msgImg, ChatRequest chatRequest) {
+        // Generate the msgImgUrl string
+        String msgImgUrl = "/" + characterId + "/" + msgImg + ".jpg";
+
+        // Find the last inserted message ID
+        Long lastMessageId = chatMessageRepository.findLastInsertedIdBySessionId(chatRequest.getConversationId())
+                .orElseThrow(() -> new RuntimeException("채팅방 id" + chatRequest.getConversationId() + "에 저장된 메세지가 없습니다."));
+
+        // Update the msgImgUrl column for the last message
+        int rowsUpdated = chatMessageRepository.updateMsgImgUrl(lastMessageId, msgImgUrl);
+
+        if (rowsUpdated == 0) {
+            throw new RuntimeException("Failed to update msgImgUrl for message ID: " + lastMessageId);
+        }
     }
 
     public Resource loadMsgImage(String characterId, String msgImg) throws Exception {

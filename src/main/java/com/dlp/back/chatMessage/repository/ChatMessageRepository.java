@@ -20,4 +20,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     @Query("SELECT c.id FROM ChatMessage c WHERE c.chatRoom.sessionId = :sessionId ORDER BY c.id DESC LIMIT 1")
     Optional<Long> findLastInsertedIdBySessionId(@Param("sessionId") Long sessionId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ChatMessage c SET c.msgImgUrl = :msgImgUrl WHERE c.id = :id")
+    int updateMsgImgUrl(@Param("id") Long id, @Param("msgImgUrl") String msgImgUrl);
 }
