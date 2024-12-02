@@ -6,6 +6,7 @@ import com.dlp.back.member.domain.entity.Member;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +22,6 @@ public class ChatRoomResponse {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
     private Member member;
-    private Character character;
+    private List<Character> characters;
 
 }

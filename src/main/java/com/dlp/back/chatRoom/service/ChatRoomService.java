@@ -2,10 +2,7 @@ package com.dlp.back.chatRoom.service;
 
 import com.dlp.back.character.domain.entity.Character;
 import com.dlp.back.character.repository.CharacterRepository;
-import com.dlp.back.chatRoom.domain.dto.ChatRoomDTO;
-import com.dlp.back.chatRoom.domain.dto.ChatRoomInfo;
-import com.dlp.back.chatRoom.domain.dto.CreateChatRoomDTO;
-import com.dlp.back.chatRoom.domain.dto.UpdateChatRoomDTO;
+import com.dlp.back.chatRoom.domain.dto.*;
 import com.dlp.back.chatRoom.repository.ChatRoomRepository;
 import com.dlp.back.chatRoom.domain.entity.ChatRoom;
 
@@ -86,15 +83,15 @@ public class ChatRoomService {
 
     public ChatRoom createChatRoom2(ChatRoomInfo chatRoomInfo) {
 
+        Member member = memberRepository.findById(chatRoomInfo.getMemberNo()).get();
+        Character character = characterRepository.findById(chatRoomInfo.getCharNo()).get();
+
         ChatRoom chatRoom = ChatRoom.builder()
                 .roomName(chatRoomInfo.getCharName())
-                .description("대화 상대: "+chatRoomInfo.getCharName())
+                .description(character.getDescription())
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-
-        Member member = memberRepository.findById(chatRoomInfo.getMemberNo()).get();
-        Character character = characterRepository.findById(chatRoomInfo.getCharNo()).get();
 
         Participant userParticipant = Participant.builder()
                 .chatRoom(savedChatRoom)
@@ -115,5 +112,44 @@ public class ChatRoomService {
         savedChatRoom.getParticipant().add(characterParticipant);
 
         return savedChatRoom;
+    }
+
+    public ChatRoom createGroupChatRoom(GroupChatRoomInfo chatRoomInfo) {
+        // 채팅방 생성
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomName(chatRoomInfo.getGroupName())
+                .description(chatRoomInfo.getGroupDescription())
+                .build();
+
+        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+
+        // 멤버 조회
+        Member member = memberRepository.findById(chatRoomInfo.getMemberNo()).get();
+
+        Participant userParticipant = Participant.builder()
+                .chatRoom(savedChatRoom)
+                .member(member)
+                .build();
+
+        participantRepository.save(userParticipant);
+
+        // 각 캐릭터에 대해 Participant 등록
+        for (Long charNo : chatRoomInfo.getCharNo()) {
+            Character character = characterRepository.findById(charNo)
+                    .orElseThrow(() -> new RuntimeException("Character not found"));
+
+            Participant characterParticipant = Participant.builder()
+                    .chatRoom(savedChatRoom)
+                    .character(character)
+                    .build();
+
+            participantRepository.save(characterParticipant);
+        }
+
+        return savedChatRoom; // 생성된 채팅방 반환
+    }
+
+    public ChatRoom findbyId(Long sessionId) {
+        return chatRoomRepository.findById(sessionId).get();
     }
 }
