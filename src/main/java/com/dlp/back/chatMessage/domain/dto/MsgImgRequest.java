@@ -9,9 +9,7 @@ import lombok.*;
 @Setter
 @ToString
 @Builder
-public class ChatResponseFastAPI {
-    private String answer;
-
+public class MsgImgRequest {
     @JsonProperty("character_id")
     private Long characterId;
 

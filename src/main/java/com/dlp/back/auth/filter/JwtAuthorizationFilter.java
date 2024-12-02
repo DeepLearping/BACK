@@ -46,8 +46,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 "/auth/google/callback",
                 "/auth/kakao/callback",
                 "/api/v1/chatRoom/(.*)",
-                "/api/v1/character/(.*)"
-
+                "/api/v1/character/(.*)",
+                "/chatMessage/getMsgImg/(.*)"
         );
 
         if(roleLeessList.stream().anyMatch(uri -> roleLeessList.stream().anyMatch(pattern -> Pattern.matches(pattern, request.getRequestURI())))){

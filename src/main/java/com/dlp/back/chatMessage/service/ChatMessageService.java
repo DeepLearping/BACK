@@ -3,14 +3,23 @@ package com.dlp.back.chatMessage.service;
 import com.dlp.back.chatMessage.domain.dto.ChatRequest;
 import com.dlp.back.chatMessage.domain.dto.ChatRequestFastAPI;
 import com.dlp.back.chatMessage.domain.dto.ChatResponseFastAPI;
+import com.dlp.back.chatMessage.domain.dto.MsgImgRequest;
 import com.dlp.back.chatMessage.domain.entity.ChatMessage;
 import com.dlp.back.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import com.dlp.back.chatMessage.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +31,7 @@ public class ChatMessageService {
 
     private static final String FASTAPI_URL = "http://localhost:8000/chat";
 
-    public String sendQuestionToFastAPI(ChatRequest chatRequest) {
+    public Map<String,Object> sendQuestionToFastAPI(ChatRequest chatRequest) {
         try {
             // FastAPI에 보낼 payload
             HttpHeaders headers = new HttpHeaders();
@@ -48,12 +57,19 @@ public class ChatMessageService {
 
             // FastAPI 응답 성공 => DB에 human & ai 메세지 저장되어 있는 상태
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                // participantNo 업데이트
+                // participant 업데이트
                 updateChatMessageParticipant(chatRequest);
 
-                // TODO: 감정 imageUrl 저장
+                Map<String,Object> map = new HashMap<>();
+                map.put("answer", responseEntity.getBody().getAnswer());
+                map.put("characterId", responseEntity.getBody().getCharacterId());
+                map.put("msgImg", responseEntity.getBody().getMsgImg());
 
-                return responseEntity.getBody().getAnswer();
+                if(responseEntity.getBody().getMsgImg() > 0){
+                    updateMsgImgUrl(responseEntity.getBody().getCharacterId(), responseEntity.getBody().getMsgImg(), chatRequest);
+                }
+
+                return map;
             } else {
                 log.error("FastAPI 서버 오류 발생: {}", responseEntity.getStatusCode());
                 throw new RuntimeException("FastAPI 서버 오류 발생");
@@ -79,5 +95,36 @@ public class ChatMessageService {
                 throw new RuntimeException("채팅방 id" + chatRequest.getConversationId() + "에 저장된 메세지가 없습니다.");
             }
         });
+    }
+
+    private void updateMsgImgUrl(long characterId, int msgImg, ChatRequest chatRequest) {
+        String msgImgUrl = "/" + characterId + "/" + msgImg + ".jpg";
+
+        Long lastMessageId = chatMessageRepository.findLastInsertedIdBySessionId(chatRequest.getConversationId())
+                .orElseThrow(() -> new RuntimeException("채팅방 id" + chatRequest.getConversationId() + "에 저장된 메세지가 없습니다."));
+
+        int rowsUpdated = chatMessageRepository.updateMsgImgUrl(lastMessageId, msgImgUrl);
+
+        if (rowsUpdated == 0) {
+            throw new RuntimeException("Failed to update msgImgUrl for message ID: " + lastMessageId);
+        }
+    }
+
+    public Resource loadMsgImage(String characterId, String msgImg) throws Exception {
+        Path basePath = Paths.get("src/main/resources/static/image/msgImg/" + characterId);
+        String imageName = msgImg;
+        Path imagePath = basePath.resolve(imageName);
+
+        Resource image = new UrlResource(imagePath.toUri());
+        if (image.exists() || image.isReadable()) {
+            return image;
+        } else {
+            throw new Exception("이미지를 찾을 수 없음.");
+        }
+    }
+
+    public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId) {
+        List<Map<String, Object>> messages = chatMessageRepository.findChatHistoryBySessionId(sessionId);
+        return messages;
     }
 }
