@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,6 +109,10 @@ public class ChatRoomService {
                 .build();
 
         participantRepository.save(characterParticipant);
+
+        savedChatRoom.setParticipant(new ArrayList<>());
+        savedChatRoom.getParticipant().add(userParticipant);
+        savedChatRoom.getParticipant().add(characterParticipant);
 
         return savedChatRoom;
     }
