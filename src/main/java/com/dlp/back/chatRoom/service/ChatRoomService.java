@@ -123,6 +123,8 @@ public class ChatRoomService {
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
 
+        savedChatRoom.setParticipant(new ArrayList<>());
+
         // 멤버 조회
         Member member = memberRepository.findById(chatRoomInfo.getMemberNo()).get();
 
@@ -132,6 +134,8 @@ public class ChatRoomService {
                 .build();
 
         participantRepository.save(userParticipant);
+
+        savedChatRoom.getParticipant().add(userParticipant);
 
         // 각 캐릭터에 대해 Participant 등록
         for (Long charNo : chatRoomInfo.getCharNo()) {
@@ -144,6 +148,8 @@ public class ChatRoomService {
                     .build();
 
             participantRepository.save(characterParticipant);
+
+            savedChatRoom.getParticipant().add(characterParticipant);
         }
 
         return savedChatRoom; // 생성된 채팅방 반환

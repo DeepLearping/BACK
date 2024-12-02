@@ -142,10 +142,9 @@ public class ChatRoomController {
 
         ChatRoom chatRoom = chatRoomService.createGroupChatRoom(chatRoomInfo);
 
-        ChatRoom foundChatRoom = chatRoomService.findbyId(chatRoom.getSessionId());
 
         // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
-        List<Character> characters = foundChatRoom.getParticipant().stream()
+        List<Character> characters = chatRoom.getParticipant().stream()
                 .skip(1) // 1번 인덱스부터 시작
                 .map(Participant::getCharacter) // 각 Participant에서 Character 추출
                 .toList();
