@@ -4,6 +4,7 @@ import com.dlp.back.chatMessage.domain.dto.ChatRequest;
 import com.dlp.back.chatMessage.domain.dto.ChatRequestFastAPI;
 import com.dlp.back.chatMessage.domain.dto.ChatResponseFastAPI;
 import com.dlp.back.chatMessage.domain.dto.MsgImgRequest;
+import com.dlp.back.chatMessage.domain.entity.ChatMessage;
 import com.dlp.back.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -55,7 +57,7 @@ public class ChatMessageService {
 
             // FastAPI 응답 성공 => DB에 human & ai 메세지 저장되어 있는 상태
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                // participantNo 업데이트
+                // participant 업데이트
                 updateChatMessageParticipant(chatRequest);
 
                 Map<String,Object> map = new HashMap<>();
@@ -96,14 +98,11 @@ public class ChatMessageService {
     }
 
     private void updateMsgImgUrl(long characterId, int msgImg, ChatRequest chatRequest) {
-        // Generate the msgImgUrl string
         String msgImgUrl = "/" + characterId + "/" + msgImg + ".jpg";
 
-        // Find the last inserted message ID
         Long lastMessageId = chatMessageRepository.findLastInsertedIdBySessionId(chatRequest.getConversationId())
                 .orElseThrow(() -> new RuntimeException("채팅방 id" + chatRequest.getConversationId() + "에 저장된 메세지가 없습니다."));
 
-        // Update the msgImgUrl column for the last message
         int rowsUpdated = chatMessageRepository.updateMsgImgUrl(lastMessageId, msgImgUrl);
 
         if (rowsUpdated == 0) {
@@ -122,5 +121,10 @@ public class ChatMessageService {
         } else {
             throw new Exception("이미지를 찾을 수 없음.");
         }
+    }
+
+    public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId) {
+        List<Map<String, Object>> messages = chatMessageRepository.findChatHistoryBySessionId(sessionId);
+        return messages;
     }
 }
