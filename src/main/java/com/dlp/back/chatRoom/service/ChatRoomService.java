@@ -155,7 +155,26 @@ public class ChatRoomService {
         return savedChatRoom; // 생성된 채팅방 반환
     }
 
-    public ChatRoom findbyId(Long sessionId) {
-        return chatRoomRepository.findById(sessionId).get();
+
+    public ChatRoom selectChatRoom2(Long sessionId) {
+        // 챗팅 방 조회 (존재 여부)
+        return chatRoomRepository.findById(sessionId).orElse(null);
     }
+
+    public List<ChatRoom> findChatRoomsByMember(Long memberNo){
+
+        // 멤버의 참가자 목록을 조회하여 관련된 챗팅 방을 반환
+        List<Participant> participants = participantRepository.findByMember_MemberNo(memberNo);
+
+        // 참가자를 통해 연결된 챗팅 방 목록 추출
+        List<ChatRoom> chatRooms = participants.stream()
+                .map(Participant::getChatRoom)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return chatRooms;
+
+    }
+
+
 }
