@@ -248,4 +248,44 @@ public class ChatRoomController {
         }
     }
 
+    //유저별 챗팅방 단일조회
+    @Operation(summary = "유저별 챗팅방 단일조회")
+    @GetMapping("/{memberNo}/{sessionId}")
+    public ResponseEntity<ResponseMessage> getsessionIdBymember(@PathVariable Long memberNo,@PathVariable Long sessionId){
+
+        // 해당 유저와 챗팅방이 존재하는지 체크
+        List<ChatRoom> chatRooms = chatRoomService.checkChatRoomByMember(memberNo,sessionId);
+
+        Map<String, Object> responseMap = new HashMap<>();
+
+        if (!chatRooms.isEmpty()) { // 챗팅방이 존재하는지 확인
+            List<ChatRoomResponse> chatRoomResponses = chatRooms.stream()
+                    .map(chatRoom -> {
+                        // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
+                        List<Character> characters = chatRoom.getParticipant().stream()
+                                .skip(1) // 1번 인덱스부터 시작
+                                .map(Participant::getCharacter) // 각 Participant에서 Character 추출
+                                .toList();
+
+                        // 챗팅방 정보를 반환
+                        return ChatRoomResponse.builder()
+                                .sessionId(chatRoom.getSessionId())
+                                .createdDate(chatRoom.getCreatedDate())
+                                .lastModifiedDate(chatRoom.getLastModifiedDate())
+                                .roomName(chatRoom.getRoomName())
+                                .description(chatRoom.getDescription())
+                                .characters(characters) // 캐릭터 정보
+                                .member(chatRoom.getParticipant().get(0).getMember()) // 유저 정보
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+
+            responseMap.put("chatRooms", chatRoomResponses);
+            return ResponseEntity.ok().body(new ResponseMessage(HttpStatus.OK, "챗팅 방 조회 성공", responseMap));
+        } else {
+            responseMap.put("message", "챗팅 방이 존재하지 않습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseMessage(HttpStatus.NOT_FOUND, "챗팅 방이 존재하지 않습니다.", responseMap));
+        }
+    }
 }

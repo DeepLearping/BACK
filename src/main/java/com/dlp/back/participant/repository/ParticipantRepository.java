@@ -14,4 +14,6 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
     Optional<Participant> findBySessionIdAndCharacterId(Long sessionId, Long characterId);
 
     List<Participant> findByMember_MemberNo(Long memberNo);
+
+    List<Participant> findByMember_MemberNoAndChatRoom_SessionId(Long memberNo, Long sessionId);
 }

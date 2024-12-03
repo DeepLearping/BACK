@@ -176,5 +176,17 @@ public class ChatRoomService {
 
     }
 
+    public List<ChatRoom> checkChatRoomByMember(Long memberNo, Long sessionId){
+
+        // 멤버의 참가자 목록을 조회해 관련된 챗팅방을 조회
+        List<Participant> participants = participantRepository.findByMember_MemberNoAndChatRoom_SessionId(memberNo, sessionId);
+
+        // 찾은 Participant로 부터 ChatRoom을 추출하여 리스트로 반환
+        return participants.stream()
+                .map(Participant::getChatRoom)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
 
 }
