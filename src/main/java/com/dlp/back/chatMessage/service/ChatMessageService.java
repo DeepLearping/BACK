@@ -32,6 +32,7 @@ public class ChatMessageService {
     private static final String FASTAPI_URL = "http://localhost:8000/chat";
 
     public Map<String,Object> sendQuestionToFastAPI(ChatRequest chatRequest) {
+
         try {
             // FastAPI에 보낼 payload
             HttpHeaders headers = new HttpHeaders();

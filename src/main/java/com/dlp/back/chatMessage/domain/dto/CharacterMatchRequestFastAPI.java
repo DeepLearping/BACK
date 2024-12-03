@@ -11,15 +11,10 @@ import java.util.List;
 @Setter
 @ToString
 @Builder
-public class ChatRequestFastAPI {
-    @JsonProperty("user_id")
-    private Long userId;
-
-    @JsonProperty("conversation_id")
-    private Long conversationId;
-
+public class CharacterMatchRequestFastAPI {
     private String question;
 
-    @JsonProperty("character_id")
-    private Long characterId;
+    @JsonProperty("char_id_list")
+    private List<Long> charIdList;
+
 }

@@ -1,10 +1,12 @@
 package com.dlp.back.chatRoom.controller;
 
+import com.dlp.back.character.domain.entity.Character;
 import com.dlp.back.chatRoom.domain.dto.*;
 import com.dlp.back.chatRoom.domain.entity.ChatRoom;
 import com.dlp.back.chatRoom.service.ChatRoomService;
 import com.dlp.back.common.ResponseMessage;
 import com.dlp.back.member.domain.entity.Member;
+import com.dlp.back.participant.domain.entity.Participant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Tag(name = "chat_room")
 @RestController
@@ -108,14 +111,52 @@ public class ChatRoomController {
             chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
         }
 
+        // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
+        List<Character> characters = chatRoom.getParticipant().stream()
+                .skip(1) // 1번 인덱스부터 시작
+                .map(Participant::getCharacter) // 각 Participant에서 Character 추출
+                .toList();
+
         ChatRoomResponse chatRoomResponse = ChatRoomResponse.builder()
                 .sessionId(chatRoom.getSessionId())
                 .createdDate(chatRoom.getCreatedDate())
                 .lastModifiedDate(chatRoom.getLastModifiedDate())
                 .roomName(chatRoom.getRoomName())
                 .description(chatRoom.getDescription())
-                .character(chatRoom.getParticipant().get(1).getCharacter())
                 .member(chatRoom.getParticipant().get(0).getMember())
+                .characters(characters)
+                .build();
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("chatRoom", chatRoomResponse);
+
+        return ResponseEntity
+                .created(URI.create("/chatRoom/"+chatRoom.getSessionId()))
+                .body(new ResponseMessage(HttpStatus.CREATED,"챗팅 방 입장!",responseMap));
+    }
+
+    //단체 챗팅 방 등록
+    @Operation(summary = "단체 챗팅방 등록")
+    @PostMapping("/create/groupChat")
+    public ResponseEntity<ResponseMessage> createGroupChatRoom(@RequestBody GroupChatRoomInfo chatRoomInfo){
+
+        ChatRoom chatRoom = chatRoomService.createGroupChatRoom(chatRoomInfo);
+
+
+        // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
+        List<Character> characters = chatRoom.getParticipant().stream()
+                .skip(1) // 1번 인덱스부터 시작
+                .map(Participant::getCharacter) // 각 Participant에서 Character 추출
+                .toList();
+
+        ChatRoomResponse chatRoomResponse = ChatRoomResponse.builder()
+                .sessionId(chatRoom.getSessionId())
+                .createdDate(chatRoom.getCreatedDate())
+                .lastModifiedDate(chatRoom.getLastModifiedDate())
+                .roomName(chatRoom.getRoomName())
+                .description(chatRoom.getDescription())
+                .member(chatRoom.getParticipant().get(0).getMember())
+                .characters(characters)
                 .build();
 
         Map<String, Object> responseMap = new HashMap<>();
