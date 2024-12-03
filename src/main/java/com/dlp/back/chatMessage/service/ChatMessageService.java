@@ -1,11 +1,8 @@
 package com.dlp.back.chatMessage.service;
 
-import com.dlp.back.chatMessage.domain.dto.ChatRequest;
-import com.dlp.back.chatMessage.domain.dto.ChatRequestFastAPI;
-import com.dlp.back.chatMessage.domain.dto.ChatResponseFastAPI;
-import com.dlp.back.chatMessage.domain.dto.MsgImgRequest;
-import com.dlp.back.chatMessage.domain.entity.ChatMessage;
+import com.dlp.back.chatMessage.domain.dto.*;
 import com.dlp.back.participant.repository.ParticipantRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -15,11 +12,10 @@ import org.springframework.web.client.RestTemplate;
 import com.dlp.back.chatMessage.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,10 +25,10 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ParticipantRepository participantRepository;
 
-    private static final String FASTAPI_URL = "http://localhost:8000/chat";
+    private static final String FASTAPI_CHAT_URL = "http://localhost:8000/chat";
+    private static final String FASTAPI_SELECT_CHAR_URL = "http://localhost:8000/character/match";
 
     public Map<String,Object> sendQuestionToFastAPI(ChatRequest chatRequest) {
-
         try {
             // FastAPI에 보낼 payload
             HttpHeaders headers = new HttpHeaders();
@@ -50,7 +46,7 @@ public class ChatMessageService {
 
             // FastAPI 서버 포스트 요청
             ResponseEntity<ChatResponseFastAPI> responseEntity = restTemplate.exchange(
-                    FASTAPI_URL,
+                    FASTAPI_CHAT_URL,
                     HttpMethod.POST,
                     entity,
                     ChatResponseFastAPI.class
@@ -127,5 +123,82 @@ public class ChatMessageService {
     public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId) {
         List<Map<String, Object>> messages = chatMessageRepository.findChatHistoryBySessionId(sessionId);
         return messages;
+    }
+
+    public List<Long> selectCharacterIdFastAPI(CharacterMatchRequestFastAPI characterMatchRequestFastAPI) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<CharacterMatchRequestFastAPI> charMatchEntity = new HttpEntity<>(characterMatchRequestFastAPI, headers);
+
+        ResponseEntity<CharacterMatchResponseFastAPI> charMatchResponseEntity = restTemplate.exchange(
+                FASTAPI_SELECT_CHAR_URL,
+                HttpMethod.POST,
+                charMatchEntity,
+                CharacterMatchResponseFastAPI.class
+        );
+
+        return charMatchResponseEntity.getBody().getSelectedCharIdList();
+    }
+
+    public List<String> getRecentChatHistoryList(Long sessionId) {
+        // sessionId로 메세지 가져오기
+        List<Map<String, Object>> messages = chatMessageRepository.findChatMessagesBySessionIdOrderByIdDesc(sessionId);
+
+        List<String> chatHistoryList = new ArrayList<>();
+        List<String> currentSet = new ArrayList<>();
+        int setCount = 0;
+
+        for (Map<String, Object> message : messages) {
+            if ("user".equals(message.get("role"))) {
+                // 유저 메세지이면 새로운 set부터 시작
+                if (!currentSet.isEmpty()) {
+                    chatHistoryList.addAll(currentSet);
+                    currentSet = new ArrayList<>();
+                    setCount++;
+                }
+
+                String content = getContentFromJsonMessage((String) message.get("message"));
+                content = "human: " + content;
+                currentSet.add(content);
+
+                if (setCount >= 5) {
+                    chatHistoryList.addAll(currentSet);
+                    break;
+                }
+            } else if ("ai".equals(message.get("role"))) {
+                String content = getContentFromJsonMessage((String) message.get("message"));
+                currentSet.add(content);
+            }
+        }
+
+        // 히스토리가 5쌍보다 적을 때 마지막 set 더해주기
+        if (!currentSet.isEmpty() && setCount < 5) {
+            chatHistoryList.addAll(currentSet);
+        }
+
+        // 채팅 순서에 맞게 reverse
+        Collections.reverse(chatHistoryList);
+        return chatHistoryList;
+    }
+
+    public String getContentFromJsonMessage(String jsonMessage) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> messageMap = null;
+        String content = jsonMessage;
+
+        try {
+            messageMap = objectMapper.readValue(jsonMessage, Map.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Map<String, Object> dataMap = (Map<String, Object>) messageMap.get("data");
+
+        if (dataMap != null && dataMap.containsKey("content")) {
+            content = (String) dataMap.get("content");
+        }
+
+        return content;
     }
 }
