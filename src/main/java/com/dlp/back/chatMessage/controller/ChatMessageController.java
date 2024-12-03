@@ -1,11 +1,7 @@
 package com.dlp.back.chatMessage.controller;
 
-import com.dlp.back.chatMessage.domain.dto.ChatRequest;
-import com.dlp.back.chatMessage.domain.dto.MsgImgRequest;
-import com.dlp.back.chatMessage.domain.entity.ChatMessage;
+import com.dlp.back.chatMessage.domain.dto.*;
 import com.dlp.back.chatMessage.service.ChatMessageService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +13,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Tag(name = "ChatMessage")
 @RestController
@@ -67,4 +62,41 @@ public class ChatMessageController {
                     .body(Collections.emptyList());
         }
     }
+
+    @PostMapping("/selectCharacterIdList")
+    public ResponseEntity<List<Long>> selectCharacterIdFastAPI(@RequestBody CharacterMatchRequest characterMatchRequest) {
+        // sessionId 이용해서 최근 5쌍의 채팅 히스토리 조회
+        Long sessionId = characterMatchRequest.getConversationId();
+        List<String> recentChatHistoryList = chatMessageService.getRecentChatHistoryList(sessionId);
+
+        CharacterMatchRequestFastAPI characterMatchRequestFastAPI = new CharacterMatchRequestFastAPI(
+                characterMatchRequest.getQuestion(),
+                characterMatchRequest.getCharIdList(),
+                recentChatHistoryList
+        );
+
+        try {
+            List<Long> selectedCharIdList = chatMessageService.selectCharacterIdFastAPI(characterMatchRequestFastAPI);
+
+            return ResponseEntity.ok(selectedCharIdList);
+        } catch (Exception e) {
+            List<Long> error = Collections.emptyList();
+            log.error("내부 서버 오류 발생", e);
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
+    // sessionId 이용해서 최근 5쌍의 채팅 히스토리 조회
+//    @GetMapping("/getRecentHistory/{sessionId}")
+//    public ResponseEntity<List<String>> getRecentChatHistoryList(@PathVariable Long sessionId) {
+//        try {
+//            List<String> selectedCharIdList = chatMessageService.getRecentChatHistoryList(sessionId);
+//
+//            return ResponseEntity.ok(selectedCharIdList);
+//        } catch (Exception e) {
+//            List<String> error = Collections.emptyList();
+//            log.error("내부 서버 오류 발생", e);
+//            return ResponseEntity.status(500).body(error);
+//        }
+//    }
 }
