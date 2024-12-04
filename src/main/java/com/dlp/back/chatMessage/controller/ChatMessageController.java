@@ -99,4 +99,24 @@ public class ChatMessageController {
 //            return ResponseEntity.status(500).body(error);
 //        }
 //    }
+
+    // 단체방에서 중복되는 유저 질문 지우기
+    // 만약 n명의 캐릭터에게 중복질문을 했으면 num_to_be_deleted는 n-1
+    @PostMapping("/deleteHumanQuestions")
+    public ResponseEntity<Map<String, Object>> deleteHumanQuestions(@RequestBody DeleteUserMessageRequest deleteUserMessageRequest) {
+        try {
+            int count = chatMessageService.deleteHumanQuestions(deleteUserMessageRequest);
+
+            Map<String,Object> result = new HashMap<>();
+            result.put("deletedNumOfMsgs", count);
+
+            // 프론트에서 deletedNumOfMsgs를 받았을 때 num_to_be_deleted와 같은 수이면 메세지가 정상적으로 삭제된 것
+            return ResponseEntity.ok(result);
+        } catch (Exception e) { // -1이면 오류
+            Map<String,Object> error = new HashMap<>();
+            error.put("deletedNumOfMsgs", -1);
+            log.error("내부 서버 오류 발생", e);
+            return ResponseEntity.status(500).body(error);
+        }
+    }
 }

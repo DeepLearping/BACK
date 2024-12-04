@@ -2,16 +2,20 @@ package com.dlp.back.chatMessage.service;
 
 import com.dlp.back.chatMessage.domain.dto.*;
 import com.dlp.back.participant.repository.ParticipantRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import com.dlp.back.chatMessage.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -200,5 +204,28 @@ public class ChatMessageService {
         }
 
         return content;
+    }
+
+    @Transactional
+    public int deleteHumanQuestions(DeleteUserMessageRequest deleteUserMessageRequest) {
+        // deleteUserMessageRequest.getNumToBeDeleted()개 만큼 최신 human message 삭제
+        Long conversationId = deleteUserMessageRequest.getConversationId();
+        int numToBeDeleted = deleteUserMessageRequest.getNumToBeDeleted();
+
+        // {human:ai}쌍이므로 *2개의 최신 메세지 가져오기
+        int fetchLimit = numToBeDeleted * 2;
+        List<Map<String, Object>> messages = chatMessageRepository.findLimitedChatMessagesBySessionIdOrderByIdDesc(conversationId, fetchLimit);
+
+        int count = 0;
+        for (Map<String, Object> message : messages) {
+            // operation time을 줄이기 위해 실제 중복되는 메세지인지는 확인하지 않음
+            if ("user".equals(message.get("role"))) {
+                chatMessageRepository.deleteMessagesById((Long) message.get("id"));
+                count++;
+                if (count >= numToBeDeleted) break;
+            }
+        }
+
+        return count;
     }
 }
