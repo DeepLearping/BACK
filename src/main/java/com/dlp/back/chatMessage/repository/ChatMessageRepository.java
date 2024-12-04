@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.awt.print.Pageable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,4 +48,18 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             "WHERE c.chatRoom.sessionId = :sessionId " +
             "ORDER BY c.id DESC")
     List<Map<String, Object>> findChatMessagesBySessionIdOrderByIdDesc(@Param("sessionId") Long sessionId);
+
+    @Query("SELECT " +
+            "CASE WHEN c.participant.character.charNo IS NULL THEN 'user' ELSE 'ai' END AS role, " +
+            "c.message AS message, " +
+            "c.id AS id " +
+            "FROM ChatMessage c " +
+            "LEFT JOIN c.participant.character pc " +
+            "WHERE c.chatRoom.sessionId = :sessionId " +
+            "ORDER BY c.id DESC LIMIT :limit")
+    List<Map<String, Object>> findLimitedChatMessagesBySessionIdOrderByIdDesc(@Param("sessionId") Long sessionId, @Param("limit") int limit);
+
+    @Modifying
+    @Query("DELETE FROM ChatMessage WHERE id = :id")
+    void deleteMessagesById(@Param("id") Long id);
 }
