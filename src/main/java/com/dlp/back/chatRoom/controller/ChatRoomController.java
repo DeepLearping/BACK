@@ -175,6 +175,37 @@ public class ChatRoomController {
                 .body(new ResponseMessage(HttpStatus.CREATED,"챗팅 방 입장!",responseMap));
     }
 
+    //밸런스 게임 채팅방 생성
+    @Operation(summary = "밸런스 게임 채팅방 생성")
+    @PostMapping("/create/balanceChatRoom")
+    public ResponseEntity<ResponseMessage> createChatRoom3(@RequestBody ChatRoomInfo chatRoomInfo){
+
+        ChatRoom chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
+
+        // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
+        List<Character> characters = chatRoom.getParticipant().stream()
+                .skip(1) // 1번 인덱스부터 시작
+                .map(Participant::getCharacter) // 각 Participant에서 Character 추출
+                .toList();
+
+        ChatRoomResponse chatRoomResponse = ChatRoomResponse.builder()
+                .sessionId(chatRoom.getSessionId())
+                .createdDate(chatRoom.getCreatedDate())
+                .lastModifiedDate(chatRoom.getLastModifiedDate())
+                .roomName(chatRoom.getRoomName())
+                .description(chatRoom.getDescription())
+                .member(chatRoom.getParticipant().get(0).getMember())
+                .characters(characters)
+                .build();
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("chatRoom", chatRoomResponse);
+
+        return ResponseEntity
+                .created(URI.create("/chatRoom/"+chatRoom.getSessionId()))
+                .body(new ResponseMessage(HttpStatus.CREATED,"밸런스 챗팅 방 입장!",responseMap));
+    }
+
     //단체 챗팅 방 등록
     @Operation(summary = "단체 챗팅방 등록")
     @PostMapping("/create/groupChat")
