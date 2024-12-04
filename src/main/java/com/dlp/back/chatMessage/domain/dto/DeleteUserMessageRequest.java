@@ -10,9 +10,7 @@ import lombok.*;
 @ToString
 @Builder
 public class DeleteUserMessageRequest {
-    @JsonProperty("conversation_id")
     private Long conversationId;
 
-    @JsonProperty("num_to_be_deleted")
     private int numToBeDeleted;
 }
