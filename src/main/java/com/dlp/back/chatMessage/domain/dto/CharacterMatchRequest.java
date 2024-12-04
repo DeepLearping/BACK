@@ -14,9 +14,9 @@ import java.util.List;
 public class CharacterMatchRequest {
     private String question;
 
-    @JsonProperty("conversation_id")
+//    @JsonProperty("conversation_id")
     private Long conversationId;
 
-    @JsonProperty("char_id_list")
+//    @JsonProperty("char_id_list")
     private List<Long> charIdList;
 }
