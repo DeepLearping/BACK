@@ -4,3 +4,5 @@ CREATE TABLE chat_history (
                               message TEXT NOT NULL,
                               createdDate DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE chat_message MODIFY created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;

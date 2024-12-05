@@ -38,4 +38,5 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             "WHERE c.chatRoom.sessionId = :sessionId " +
             "ORDER BY c.id ASC")
     List<Map<String, Object>> findChatHistoryBySessionId(@Param("sessionId") Long sessionId);
+
 }
