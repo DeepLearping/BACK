@@ -180,7 +180,17 @@ public class ChatRoomController {
     @PostMapping("/create/balanceChatRoom")
     public ResponseEntity<ResponseMessage> createChatRoom3(@RequestBody ChatRoomInfo chatRoomInfo){
 
-        ChatRoom chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
+        // 해당 유저와 특정 캐릭터 간의 채팅방이 존재하는지 체크
+        ChatRoom foundChatRoom = chatRoomService.checkBalanceChatRoom(chatRoomInfo);
+
+        ChatRoom chatRoom;
+
+        if (foundChatRoom != null) {
+            chatRoom = foundChatRoom;
+        } else {
+            // 존재하는 채팅방이 없으면 채팅방 생성해주기
+            chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
+        }
 
         // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
         List<Character> characters = chatRoom.getParticipant().stream()
