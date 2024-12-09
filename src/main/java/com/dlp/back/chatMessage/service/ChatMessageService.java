@@ -9,13 +9,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import com.dlp.back.chatMessage.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -124,8 +126,15 @@ public class ChatMessageService {
         }
     }
 
-    public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId) {
-        List<Map<String, Object>> messages = chatMessageRepository.findChatHistoryBySessionId(sessionId);
+    public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId, int limit, int pageNo) {
+        Page<Map<String, Object>> page = null;
+        PageRequest pageRequest = PageRequest.of(pageNo, limit);
+
+        page = chatMessageRepository.findChatHistoryBySessionIdWithPagination(sessionId, pageRequest);
+
+        assert page != null;
+        List<Map<String, Object>> messages = page.getContent();
+
         return messages;
     }
 
