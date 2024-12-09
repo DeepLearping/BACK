@@ -13,7 +13,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Query("SELECT cr FROM ChatRoom cr " +
             "JOIN cr.participant p " +
             "WHERE (p.member.memberNo = :memberNo AND p.character IS NULL) " +
-            "AND (p.character.charNo = :charNo AND p.member IS NULL) " +
+            "OR (p.character.charNo = :charNo AND p.member IS NULL) " +
             "GROUP BY cr " +
             "HAVING COUNT(p) = 2")
     List<ChatRoom> findChatRoomsByCharNoAndMemberNo(Long charNo, Long memberNo);
