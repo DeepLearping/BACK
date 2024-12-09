@@ -17,4 +17,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             "GROUP BY cr " +
             "HAVING COUNT(p) = 2")
     List<ChatRoom> findChatRoomsByCharNoAndMemberNo(Long charNo, Long memberNo);
+
+    ChatRoom findChatRoomByRoomName(String charName);
 }
