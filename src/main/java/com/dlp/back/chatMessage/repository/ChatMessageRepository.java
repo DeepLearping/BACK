@@ -1,15 +1,17 @@
 package com.dlp.back.chatMessage.repository;
 
+import com.dlp.back.chatMessage.domain.dto.ChatMessageDTO;
 import com.dlp.back.chatMessage.domain.entity.ChatMessage;
 import com.dlp.back.participant.domain.entity.Participant;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,12 +35,15 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             "CASE WHEN c.participant.character.charNo IS NULL THEN 'user' ELSE 'ai' END AS role, " +
             "c.message AS message, " +
             "c.msgImgUrl AS msgImgUrl, " +
-            "c.participant.character.charNo AS characterId " +
+            "c.participant.character.charNo AS characterId, " +
+            "c.id AS id " +
             "FROM ChatMessage c " +
             "LEFT JOIN c.participant.character pc " +
             "WHERE c.chatRoom.sessionId = :sessionId " +
-            "ORDER BY c.id ASC")
-    List<Map<String, Object>> findChatHistoryBySessionId(@Param("sessionId") Long sessionId);
+            "ORDER BY c.id DESC")
+    Page<Map<String, Object>> findChatHistoryBySessionIdWithPagination(
+            Long sessionId,
+            Pageable pageable);
 
     @Query("SELECT " +
             "CASE WHEN c.participant.character.charNo IS NULL THEN 'user' ELSE 'ai' END AS role, " +
