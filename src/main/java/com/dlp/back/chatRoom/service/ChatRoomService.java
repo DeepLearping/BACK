@@ -2,6 +2,8 @@ package com.dlp.back.chatRoom.service;
 
 import com.dlp.back.character.domain.entity.Character;
 import com.dlp.back.character.repository.CharacterRepository;
+import com.dlp.back.chatMessage.domain.entity.ChatMessage;
+import com.dlp.back.chatMessage.repository.ChatMessageRepository;
 import com.dlp.back.chatRoom.domain.dto.*;
 import com.dlp.back.chatRoom.repository.ChatRoomRepository;
 import com.dlp.back.chatRoom.domain.entity.ChatRoom;
@@ -14,9 +16,12 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +36,7 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final CharacterRepository characterRepository;
     private final ParticipantRepository participantRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     // 챗팅 방 전체 조회
     public List<ChatRoomDTO> findAllChatRooms() {
@@ -177,6 +183,16 @@ public class ChatRoomService {
                 .map(Participant::getChatRoom)
                 .distinct()
                 .collect(Collectors.toList());
+
+        // 각 챗팅방의 마지막 메시지 가져오기
+        for (ChatRoom chatRoom : chatRooms) {
+            List<ChatMessage> lastMessages = chatMessageRepository.findTopByChatRoomSessionIdOrderByCreatedDateDesc(chatRoom.getSessionId());
+            if (!lastMessages.isEmpty()) {
+                chatRoom.setChatMessages(Collections.singletonList(lastMessages.get(0))); // 리스트로 설정
+            } else {
+                chatRoom.setChatMessages(Collections.emptyList()); // 메시지가 없을 경우 빈 리스트 설정
+            }
+        }
 
         return chatRooms;
 

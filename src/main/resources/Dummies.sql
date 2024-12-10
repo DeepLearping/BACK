@@ -5,3 +5,5 @@ INSERT INTO `character` (description, char_name, profile_image, role) VALUES
                                                                           ('오래 전 명탐정으로 명성을 떨친 긴다이치 코스케의 외손자로, 학력 수준이 높은 후도 고등학교 입학 시험을 역대 최고 성적으로 통과할 만큼 두뇌 회전이 빠른 천재.', '김전일', '/image/characterProfile/김전일.png', 'ai'),
                                                                           ('네모바지 스폰지밥의 등장인물이자 메인 빌런. 오버 테크놀로지 + 천재악당의 기믹을 가지고 있는 악역 캐릭터 이지만, 갖고 있는 기술력을 도무지 활용하질 못해서 무조건 계획이 실패한다. 늘 게살버거 비법을 노리고 집게리아에 잠입하지만 결과는 항상 실패한다.', '플랑크톤', '/image/characterProfile/플랑크톤.png', 'ai'),
                                                                           ('네모바지 스폰지밥의 주인공. 열정적이고 순진하며 무한 긍정 에너지의 소유자. 항상 에너지로 가득 차 있고, 친구들에게 도움을 주려고 노력하는 캐릭터이다.', '스폰지밥', '/image/characterProfile/스폰지밥.png', 'ai');
+
+ALTER TABLE chat_message MODIFY created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
