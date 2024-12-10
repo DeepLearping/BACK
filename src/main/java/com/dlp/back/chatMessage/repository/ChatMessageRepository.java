@@ -40,10 +40,11 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             "FROM ChatMessage c " +
             "LEFT JOIN c.participant.character pc " +
             "WHERE c.chatRoom.sessionId = :sessionId " +
-            "ORDER BY c.id DESC")
-    Page<Map<String, Object>> findChatHistoryBySessionIdWithPagination(
+            "AND (:lastFetchedId IS NULL OR c.id < :lastFetchedId) " +
+            "ORDER BY c.id DESC LIMIT :limit")
+    List<Map<String, Object>> findChatHistoryBySessionIdWithPagination(
             Long sessionId,
-            Pageable pageable);
+            int limit, Long lastFetchedId);
 
     @Query("SELECT " +
             "CASE WHEN c.participant.character.charNo IS NULL THEN 'user' ELSE 'ai' END AS role, " +

@@ -126,15 +126,8 @@ public class ChatMessageService {
         }
     }
 
-    public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId, int limit, int pageNo) {
-        Page<Map<String, Object>> page = null;
-        PageRequest pageRequest = PageRequest.of(pageNo, limit);
-
-        page = chatMessageRepository.findChatHistoryBySessionIdWithPagination(sessionId, pageRequest);
-
-        assert page != null;
-        List<Map<String, Object>> messages = page.getContent();
-
+    public List<Map<String, Object>> findChatHistoryBySessionId(Long sessionId, int limit, Long lastFetchedId) {
+        List<Map<String, Object>> messages = chatMessageRepository.findChatHistoryBySessionIdWithPagination(sessionId, limit, lastFetchedId);
         return messages;
     }
 

@@ -56,10 +56,13 @@ public class ChatMessageController {
     public ResponseEntity<List<Map<String, Object>>> getChatHistory(
             @PathVariable Long sessionId,
             @RequestParam(defaultValue = "10") int limit,
-            @RequestParam(defaultValue = "0") int offset
+            @RequestParam(required = false) Long lastFetchedId
     ) {
         try {
-            List<Map<String, Object>> messages = chatMessageService.findChatHistoryBySessionId(sessionId, limit, offset);
+            if (lastFetchedId == -1) {
+                lastFetchedId = null;
+            }
+            List<Map<String, Object>> messages = chatMessageService.findChatHistoryBySessionId(sessionId, limit, lastFetchedId);
             return ResponseEntity.ok(messages);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
