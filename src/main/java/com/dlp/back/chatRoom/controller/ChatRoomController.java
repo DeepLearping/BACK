@@ -1,6 +1,7 @@
 package com.dlp.back.chatRoom.controller;
 
 import com.dlp.back.character.domain.entity.Character;
+import com.dlp.back.chatMessage.domain.entity.ChatMessage;
 import com.dlp.back.chatRoom.domain.dto.*;
 import com.dlp.back.chatRoom.domain.entity.ChatRoom;
 import com.dlp.back.chatRoom.service.ChatRoomService;
@@ -17,9 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Tag(name = "chat_room")
@@ -180,7 +179,17 @@ public class ChatRoomController {
     @PostMapping("/create/balanceChatRoom")
     public ResponseEntity<ResponseMessage> createChatRoom3(@RequestBody ChatRoomInfo chatRoomInfo){
 
-        ChatRoom chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
+        // 해당 유저와 특정 캐릭터 간의 채팅방이 존재하는지 체크
+        ChatRoom foundChatRoom = chatRoomService.checkBalanceChatRoom(chatRoomInfo);
+
+        ChatRoom chatRoom;
+
+        if (foundChatRoom != null) {
+            chatRoom = foundChatRoom;
+        } else {
+            // 존재하는 채팅방이 없으면 채팅방 생성해주기
+            chatRoom = chatRoomService.createChatRoom2(chatRoomInfo);
+        }
 
         // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
         List<Character> characters = chatRoom.getParticipant().stream()
@@ -249,7 +258,7 @@ public class ChatRoomController {
         Map<String, Object> responseMap = new HashMap<>();
 
         if (!chatRooms.isEmpty()) { // 챗팅방이 존재하는지 확인
-            List<ChatRoomResponse> chatRoomResponses = chatRooms.stream()
+            List<ChatRoomResponse2> chatRoomResponses2 = chatRooms.stream()
                     .map(chatRoom -> {
                         // 1번 인덱스부터 마지막 인덱스까지의 캐릭터를 리스트로 변환
                         List<Character> characters = chatRoom.getParticipant().stream()
@@ -257,8 +266,20 @@ public class ChatRoomController {
                                 .map(Participant::getCharacter) // 각 Participant에서 Character 추출
                                 .toList();
 
+                        List<ChatMessage> derivedChatMessages = new ArrayList<>();
+
+                        // 첫 번째 ChatMessage의 내용을 가져옴
+                        if (!chatRoom.getChatMessages().isEmpty()) {
+                            String firstMessage = chatRoom.getChatMessages().get(0).getMessage();
+
+                            // 첫 번째 메시지만 추가
+                            ChatMessage newChatMessage = new ChatMessage();
+                            newChatMessage.setMessage(firstMessage.trim()); // 첫 번째 메시지 설정
+                            derivedChatMessages.add(newChatMessage); // 리스트에 추가
+                        }
+
                         // 챗팅방 정보를 반환
-                        return ChatRoomResponse.builder()
+                        return ChatRoomResponse2.builder()
                                 .sessionId(chatRoom.getSessionId())
                                 .createdDate(chatRoom.getCreatedDate())
                                 .lastModifiedDate(chatRoom.getLastModifiedDate())
@@ -266,11 +287,14 @@ public class ChatRoomController {
                                 .description(chatRoom.getDescription())
                                 .characters(characters) // 캐릭터 정보
                                 .member(chatRoom.getParticipant().get(0).getMember()) // 유저 정보
+                                .lastChatMessage(derivedChatMessages)// 마지막 챗팅 메세지
                                 .build();
                     })
                     .collect(Collectors.toList());
 
-            responseMap.put("chatRooms", chatRoomResponses);
+
+
+            responseMap.put("chatRooms", chatRoomResponses2);
             return ResponseEntity.ok().body(new ResponseMessage(HttpStatus.OK, "챗팅 방 조회 성공", responseMap));
         } else {
             responseMap.put("message", "챗팅 방이 존재하지 않습니다.");

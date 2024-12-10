@@ -1,5 +1,6 @@
 package com.dlp.back.chatRoom.domain.entity;
 
+import com.dlp.back.chatMessage.domain.entity.ChatMessage;
 import com.dlp.back.participant.domain.entity.Participant;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,6 +37,10 @@ public class ChatRoom {
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Participant> participant = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> chatMessages = new ArrayList<>();
+
 
 }
 

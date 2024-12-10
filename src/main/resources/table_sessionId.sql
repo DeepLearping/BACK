@@ -4,3 +4,4 @@ CREATE TABLE chat_history (
                               message TEXT NOT NULL,
                               createdDate DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
