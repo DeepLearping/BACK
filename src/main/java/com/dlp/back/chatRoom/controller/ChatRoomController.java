@@ -282,6 +282,8 @@ public class ChatRoomController {
                     })
                     .collect(Collectors.toList());
 
+
+
             responseMap.put("chatRooms", chatRoomResponses2);
             return ResponseEntity.ok().body(new ResponseMessage(HttpStatus.OK, "챗팅 방 조회 성공", responseMap));
         } else {

@@ -62,4 +62,8 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Modifying
     @Query("DELETE FROM ChatMessage WHERE id = :id")
     void deleteMessagesById(@Param("id") Long id);
+
+    // chatMessage 내림차순 정리
+    @Query("SELECT c from ChatMessage c WHERE c.chatRoom.sessionId = :sessionId ORDER BY  c.id DESC")
+    List<ChatMessage> findTopByChatRoomSessionIdOrderByCreatedDateDesc(@Param("sessionId") Long sessionId);
 }
