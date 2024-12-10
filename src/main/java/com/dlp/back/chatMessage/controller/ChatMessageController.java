@@ -51,15 +51,18 @@ public class ChatMessageController {
         }
     }
 
-    // TODO: 일정량의 최신 채팅 히스토리만 가져오고 나머지 히스토리는 무한스크롤로 로딩
+    // 일정량의 최신 채팅 히스토리만 가져오고 나머지 히스토리는 무한스크롤로 로딩
     @GetMapping("/history/{sessionId}")
-    public ResponseEntity<List<Map<String, Object>>> getChatHistory(@PathVariable Long sessionId) {
+    public ResponseEntity<List<Map<String, Object>>> getChatHistory(
+            @PathVariable Long sessionId,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "0") int offset
+    ) {
         try {
-            List<Map<String, Object>> messages = chatMessageService.findChatHistoryBySessionId(sessionId);
+            List<Map<String, Object>> messages = chatMessageService.findChatHistoryBySessionId(sessionId, limit, offset);
             return ResponseEntity.ok(messages);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
 

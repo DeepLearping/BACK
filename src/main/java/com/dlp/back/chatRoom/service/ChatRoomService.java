@@ -87,6 +87,12 @@ public class ChatRoomService {
         return chatRooms;
     }
 
+    public ChatRoom checkBalanceChatRoom(ChatRoomInfo chatRoomInfo) {
+        ChatRoom chatRoom = chatRoomRepository.findChatRoomByRoomName(chatRoomInfo.getCharName());
+
+        return chatRoom;
+    }
+
     public ChatRoom createChatRoom2(ChatRoomInfo chatRoomInfo) {
 
         Member member = memberRepository.findById(chatRoomInfo.getMemberNo()).get();
@@ -203,6 +209,7 @@ public class ChatRoomService {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
 
 
 }
