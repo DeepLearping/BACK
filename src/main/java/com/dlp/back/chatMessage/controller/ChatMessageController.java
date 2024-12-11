@@ -73,9 +73,7 @@ public class ChatMessageController {
     public ResponseEntity<List<Long>> selectCharacterIdFastAPI(@RequestBody CharacterMatchRequest characterMatchRequest) {
         // sessionId 이용해서 최근 5쌍의 채팅 히스토리 조회
         Long sessionId = characterMatchRequest.getConversationId();
-        log.info("sessionId: {}",sessionId);
         List<String> recentChatHistoryList = chatMessageService.getRecentChatHistoryList(sessionId);
-        log.info("characterMatchRequest.getCharIdList: {}",characterMatchRequest.getCharIdList());
 
         CharacterMatchRequestFastAPI characterMatchRequestFastAPI = new CharacterMatchRequestFastAPI(
                 characterMatchRequest.getQuestion(),
