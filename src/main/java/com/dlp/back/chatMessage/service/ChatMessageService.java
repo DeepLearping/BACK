@@ -69,14 +69,49 @@ public class ChatMessageService {
 
                 String msgImgName = "" + responseEntity.getBody().getMsgImg();
                 if (responseEntity.getBody().getMsgImg() > 0) {
-                    // 스폰지밥 => 여러개의 사진 중 랜덤으로 선택
-                    if (responseEntity.getBody().getCharacterId() == 6){
+                    // 여러개의 사진 중 랜덤으로 선택
+                    if (responseEntity.getBody().getCharacterId() == 6){        // 스폰지밥
                         if (responseEntity.getBody().getMsgImg() == 1) {
                             int rand = new Random().nextInt(7) + 1;
                             msgImgName = "1_" + rand;
                         } else if (responseEntity.getBody().getMsgImg() == 2) {
                             int rand = new Random().nextInt(4) + 1;
                             msgImgName = "2_" + rand;
+                        }
+                    } else if (responseEntity.getBody().getCharacterId() == 1){ // 버즈
+                        if (responseEntity.getBody().getMsgImg() == 1) {
+                            int rand = new Random().nextInt(8) + 1;
+                            msgImgName = "1_" + rand;
+                        } else if (responseEntity.getBody().getMsgImg() == 2) {
+                            int rand = new Random().nextInt(3) + 1;
+                            msgImgName = "2_" + rand;
+                        }
+                    } else if (responseEntity.getBody().getCharacterId() == 3){ // 리바이
+                        if (responseEntity.getBody().getMsgImg() == 2) {
+                            int rand = new Random().nextInt(8) + 1;
+                            msgImgName = "2_" + rand;
+                        }
+                    } else if (responseEntity.getBody().getCharacterId() == 4){ // 김전일
+                        if (responseEntity.getBody().getMsgImg() == 1) {
+                            int rand = new Random().nextInt(3) + 1;
+                            msgImgName = "1_" + rand;
+                        } else if (responseEntity.getBody().getMsgImg() == 2) {
+                            int rand = new Random().nextInt(4) + 1;
+                            msgImgName = "2_" + rand;
+                        }
+                    } else if (responseEntity.getBody().getCharacterId() == 5){ // 플랑크톤
+                        if (responseEntity.getBody().getMsgImg() == 1) {
+                            int rand = new Random().nextInt(5) + 1;
+                            msgImgName = "1_" + rand;
+                        } else if (responseEntity.getBody().getMsgImg() == 2) {
+                            int rand = new Random().nextInt(3) + 1;
+                            msgImgName = "2_" + rand;
+                        }
+                    } else if (responseEntity.getBody().getCharacterId() == 2){ // 에스카노르
+                        if (responseEntity.getBody().getMsgImg() == 1) {
+                            msgImgName = "1";
+                        } else {
+                            msgImgName = "0";   // 해당 사진 없음
                         }
                     }
                     updateMsgImgUrl(responseEntity.getBody().getCharacterId(), msgImgName, chatRequest);
