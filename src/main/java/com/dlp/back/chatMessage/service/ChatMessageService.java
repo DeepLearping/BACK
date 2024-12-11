@@ -2,22 +2,17 @@ package com.dlp.back.chatMessage.service;
 
 import com.dlp.back.chatMessage.domain.dto.*;
 import com.dlp.back.participant.repository.ParticipantRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import com.dlp.back.chatMessage.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,13 +59,29 @@ public class ChatMessageService {
                 updateChatMessageParticipant(chatRequest);
 
                 Map<String,Object> map = new HashMap<>();
+
+                Long lastMessageId = chatMessageRepository.findLastInsertedIdBySessionId(chatRequest.getConversationId())
+                        .orElseThrow(() -> new RuntimeException("채팅방 id" + chatRequest.getConversationId() + "에 저장된 메세지가 없습니다."));
+
+                map.put("createdDate", chatMessageRepository.getChatMessageById(lastMessageId).getCreatedDate());
                 map.put("answer", responseEntity.getBody().getAnswer());
                 map.put("characterId", responseEntity.getBody().getCharacterId());
-                map.put("msgImg", responseEntity.getBody().getMsgImg());
 
-                if(responseEntity.getBody().getMsgImg() > 0){
-                    updateMsgImgUrl(responseEntity.getBody().getCharacterId(), responseEntity.getBody().getMsgImg(), chatRequest);
+                String msgImgName = "" + responseEntity.getBody().getMsgImg();
+                if (responseEntity.getBody().getMsgImg() > 0) {
+                    // 스폰지밥 => 여러개의 사진 중 랜덤으로 선택
+                    if (responseEntity.getBody().getCharacterId() == 6){
+                        if (responseEntity.getBody().getMsgImg() == 1) {
+                            int rand = new Random().nextInt(7) + 1;
+                            msgImgName = "1_" + rand;
+                        } else if (responseEntity.getBody().getMsgImg() == 2) {
+                            int rand = new Random().nextInt(4) + 1;
+                            msgImgName = "2_" + rand;
+                        }
+                    }
+                    updateMsgImgUrl(responseEntity.getBody().getCharacterId(), msgImgName, chatRequest);
                 }
+                map.put("msgImg", msgImgName);
 
                 return map;
             } else {
@@ -100,7 +111,7 @@ public class ChatMessageService {
         });
     }
 
-    private void updateMsgImgUrl(long characterId, int msgImg, ChatRequest chatRequest) {
+    private void updateMsgImgUrl(long characterId, String msgImg, ChatRequest chatRequest) {
         String msgImgUrl = "/" + characterId + "/" + msgImg + ".jpg";
 
         Long lastMessageId = chatMessageRepository.findLastInsertedIdBySessionId(chatRequest.getConversationId())
