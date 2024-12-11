@@ -20,10 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Pageable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -194,8 +191,10 @@ public class ChatRoomService {
             }
         }
 
-        return chatRooms;
+        // lastModifiedDate를 기준으로 정렬
+        chatRooms.sort(Comparator.comparing(ChatRoom::getLastModifiedDate).reversed());
 
+        return chatRooms;
     }
 
     public List<ChatRoom> checkChatRoomByMember(Long memberNo, Long sessionId){
@@ -209,7 +208,5 @@ public class ChatRoomService {
                 .distinct()
                 .collect(Collectors.toList());
     }
-
-
 
 }

@@ -1,6 +1,8 @@
 package com.dlp.back.chatMessage.service;
 
 import com.dlp.back.chatMessage.domain.dto.*;
+import com.dlp.back.chatRoom.domain.entity.ChatRoom;
+import com.dlp.back.chatRoom.repository.ChatRoomRepository;
 import com.dlp.back.participant.repository.ParticipantRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -33,6 +36,7 @@ public class ChatMessageService {
 
     private static final String FASTAPI_CHAT_URL = "http://localhost:8000/chat";
     private static final String FASTAPI_SELECT_CHAR_URL = "http://localhost:8000/character/match";
+    private final ChatRoomRepository chatRoomRepository;
 
     public Map<String,Object> sendQuestionToFastAPI(ChatRequest chatRequest) {
         try {
@@ -62,6 +66,13 @@ public class ChatMessageService {
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 // participant 업데이트
                 updateChatMessageParticipant(chatRequest);
+
+                // 마지막 수정날짜 반영
+                ChatRoom foundChatRoom = chatRoomRepository.findById(chatRequest.getConversationId()).get();
+
+                foundChatRoom.setLastModifiedDate(LocalDateTime.now());
+
+                chatRoomRepository.save(foundChatRoom);
 
                 Map<String,Object> map = new HashMap<>();
                 map.put("answer", responseEntity.getBody().getAnswer());
