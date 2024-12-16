@@ -94,7 +94,6 @@ public class AuthController {
     @GetMapping("/auth/kakao/callback")
     public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code) {
 
-        log.info("잘 들어왔니?");
         // 1. 카카오에 access token 요청
         String tokenUrl = kakaoAccessTokenUrl;
         RestTemplate restTemplate = new RestTemplate();
@@ -110,13 +109,11 @@ public class AuthController {
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
-        log.info(String.valueOf(requestEntity));
         ResponseEntity<String> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, requestEntity, String.class);
 
         // 2. 액세스 토큰 반환
         String accessToken = extractAccessToken(response.getBody());
         log.info("accessToken : {}", accessToken);
-
 
         // 3. 사용자 정보 요청
         String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
@@ -196,18 +193,13 @@ public class AuthController {
             JsonNode jsonNode = objectMapper.readTree(userInfo);
 
             String kakaoId = jsonNode.get("id").asText(); //  ID
-            log.info("kakaoId : {}", kakaoId);
 
             // kakao_account에서 사용자 이름과 이메일 정보 가져오기
             JsonNode kakaoAccount = jsonNode.get("kakao_account");
             String name = kakaoAccount.get("name").asText(); // 사용자 이름
-            log.info("name : {}", name);
             String nickName = kakaoAccount.get("profile").get("nickname").asText(); // 사용자 닉네임
-            log.info("nickName : {}", nickName);
             String email = kakaoAccount.get("email").asText(); // 이메일
-            log.info("email : {}", email);
             String picture = kakaoAccount.get("profile").get("profile_image_url").asText(); // 프로필 사진
-            log.info("picture : {}", picture);
 
             Member user = memberRepository.findByKakaoId(kakaoId);
             if (user == null) {
